@@ -1,5 +1,9 @@
 {
   "name": "earbud-coach",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@vercel/node": "^3.2.0",
+    "node-fetch": "^3.3.2"
+  }
 }

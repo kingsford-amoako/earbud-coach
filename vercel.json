@@ -1,8 +1,0 @@
-{
-  "version": 2,
-  "functions": {
-    "api/session.ts": {
-      "runtime": "nodejs22.x"
-    }
-  }
-}

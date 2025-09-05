@@ -1,33 +1,38 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+// Serverless Function: Node runtime (no Edge)
+// Signature: VercelRequest => VercelResponse
 
-export default async function handler(req: Request): Promise<Response> {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    return new Response("Missing OPENAI_API_KEY", { status: 500 });
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import fetch from 'node-fetch';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) {
+      res.status(500).send('Missing OPENAI_API_KEY');
+      return;
+    }
+
+    const instructions = readFileSync(join(process.cwd(), 'prompt', 'system.txt'), 'utf8');
+
+    const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-realtime-preview-2025-06-03',
+        voice: 'verse',
+        instructions
+      })
+    });
+
+    const text = await r.text();
+    res.setHeader('content-type', 'application/json');
+    res.status(r.ok ? 200 : 400).send(text);
+  } catch (e: any) {
+    res.status(500).send(`Server error: ${e?.message || e}`);
   }
-
-  // Read system prompt from the repo at runtime (Node runtime supports fs)
-  const instructions = readFileSync(
-    join(process.cwd(), "prompt", "system.txt"),
-    "utf8"
-  );
-
-  const r = await fetch("https://api.openai.com/v1/realtime/sessions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-realtime-preview-2025-06-03",
-      voice: "verse",
-      instructions
-    })
-  });
-
-  const data = await r.json();
-  return new Response(JSON.stringify(data), {
-    headers: { "content-type": "application/json" }
-  });
 }
