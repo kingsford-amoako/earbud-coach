@@ -8,19 +8,23 @@
     body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; }
     button { padding: 12px 18px; font-size: 16px; }
     .row { display: flex; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
-    #status { opacity: .7 }
+    #status { opacity: .8 }
+    #log { white-space: pre-wrap; background:#f6f8fa; padding:12px; border-radius:8px; font-size:13px; }
   </style>
 </head>
 <body>
   <h1>Earbud Coach — Security/GRC/IT Audit</h1>
-  <p>1) Click Connect. 2) Wear earbuds. 3) Ask your question and then shadow the answer.</p>
+  <p>1) Click <b>Enable Audio</b> once. 2) Click <b>Connect</b>. 3) Hold <b>Push-to-Talk</b> as the question is asked, then release to hear the answer and shadow it.</p>
   <div class="row">
-    <button id="connect">Connect</button>
+    <button id="unlock">Enable Audio</button>
+    <button id="connect" disabled>Connect</button>
     <button id="ptt" disabled>Push-to-Talk</button>
+    <button id="respond" disabled>Respond</button>
     <button id="short" disabled>Short</button>
     <button id="star" disabled>STAR</button>
     <span id="status">idle</span>
   </div>
+  <div id="log"></div>
   <script src="app.js"></script>
 </body>
 </html>
