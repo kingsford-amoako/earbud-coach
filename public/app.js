@@ -16,6 +16,13 @@ async function connect() {
 
   // 2) WebRTC setup
   pc = new RTCPeerConnection();
+  pc.ondatachannel = (e) => {
+  const ch = e.channel;
+  ch.onmessage = (m) => {
+    try { console.log('model event:', JSON.parse(m.data)); }
+    catch { console.log('model event:', m.data); }
+  };
+};
 
   // Play incoming audio from the model
   pc.ontrack = e => {
@@ -70,10 +77,14 @@ pttBtn.ontouchstart = e => { e.preventDefault(); setPTT(true); };
 pttBtn.ontouchend = () => setPTT(false);
 
 function setPTT(down) {
-  pressed = down;
+  // Toggle mic track
   micStream.getAudioTracks().forEach(t => t.enabled = down);
   pttBtn.textContent = down ? 'Release to stop' : 'Push-to-Talk';
+
+  // When the user releases PTT, ask the model to respond
+  if (!down) requestResponse();
 }
+
 
 // Quick cues to reshape output
 shortBtn.onclick = () => sendCue('Short version');
@@ -82,4 +93,16 @@ starBtn.onclick  = () => sendCue('STAR version');
 function sendCue(text) {
   if (!dataChannel || dataChannel.readyState !== 'open') return;
   dataChannel.send(JSON.stringify({ type: 'user.cue', text }));
+}
+
+function requestResponse() {
+  if (!dataChannel || dataChannel.readyState !== 'open') return;
+  // Ask the model to generate a spoken reply, using what it just heard.
+  dataChannel.send(JSON.stringify({
+    type: "response.create",
+    response: {
+      modalities: ["audio"],   // speak back
+      instructions: ""         // optional extra instruction per turn
+    }
+  }));
 }
