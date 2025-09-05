@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/session.ts": {
+      "runtime": "nodejs22.x"
+    }
+  }
+}
