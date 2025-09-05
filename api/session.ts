@@ -1,16 +1,15 @@
-import fs from "fs";
-import path from "path";
+import { readFileSync } from "fs";
+import { join } from "path";
 
-export const config = { runtime: "edge" };
-
-export default async function handler() {
+export default async function handler(req: Request): Promise<Response> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) {
     return new Response("Missing OPENAI_API_KEY", { status: 500 });
   }
 
-  const instructions = fs.readFileSync(
-    path.join(process.cwd(), "prompt/system.txt"),
+  // Read system prompt from the repo at runtime (Node runtime supports fs)
+  const instructions = readFileSync(
+    join(process.cwd(), "prompt", "system.txt"),
     "utf8"
   );
 
@@ -21,8 +20,6 @@ export default async function handler() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      // Use the latest Realtime model available to you.
-      // You can swap to a newer snapshot later.
       model: "gpt-4o-realtime-preview-2025-06-03",
       voice: "verse",
       instructions

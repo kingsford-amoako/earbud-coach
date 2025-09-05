@@ -1,7 +1,5 @@
 {
   "name": "earbud-coach",
   "private": true,
-  "type": "module",
-  "dependencies": {},
-  "devDependencies": {}
+  "type": "module"
 }
